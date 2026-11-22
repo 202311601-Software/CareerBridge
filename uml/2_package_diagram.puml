@@ -1,0 +1,41 @@
+@startuml CareerBridge_Package_Diagram
+title CareerBridge - Package Diagram (Design Document Part B, Fig. 3)
+skinparam shadowing false
+skinparam packageStyle folder
+
+package "careerbridge.ui" as ui {
+  class CareerBridgeApp
+}
+package "careerbridge.services" as services {
+  class Member4MatchService
+}
+package "careerbridge.security" as security {
+  class Member3Security
+  class Passwords
+}
+package "careerbridge.data" as data {
+  class Store
+}
+package "careerbridge.model" as model {
+  class Account
+  class Opportunity
+  class Application
+}
+
+ui ..> services
+ui ..> security
+ui ..> data
+ui ..> model
+services ..> data
+services ..> security
+services ..> model
+security ..> data : closeOpportunity(Store, ...)
+data ..> security : role / ownership checks
+security ..> model
+data ..> model
+
+note bottom of security
+  Known issue: data and security
+  depend on each other (see 4.3).
+end note
+@enduml

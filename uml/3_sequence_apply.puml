@@ -1,0 +1,25 @@
+@startuml CareerBridge_Sequence_Apply
+title CareerBridge - Sequence: Apply to an opportunity (Design Document Part B, 3.6)
+skinparam shadowing false
+actor Student
+participant CareerBridgeApp as UI
+participant Store
+participant Member3Security as Sec
+
+Student -> UI : press "Apply to selected"
+UI -> Store : opportunity(id)
+Store --> UI : Opportunity
+UI -> Store : submitApplication(current, opportunity)
+Store -> Sec : isApplicant(current)
+Sec --> Store : true
+Store -> Store : check open, held by store
+Store -> Store : application(email, id) == null ?
+alt all checks pass
+  Store --> UI : Application (Pending)
+  UI -> Store : save()
+  UI --> Student : "Application submitted (Pending)."
+else a check fails
+  Store --> UI : IllegalArgumentException(message)
+  UI --> Student : error dialog
+end
+@enduml

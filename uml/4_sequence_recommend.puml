@@ -1,0 +1,22 @@
+@startuml CareerBridge_Sequence_Recommend
+title CareerBridge - Sequence: Recommended for me (Member 4 feature)
+skinparam shadowing false
+actor Student
+participant CareerBridgeApp as UI
+participant Member4MatchService as Svc
+participant Store
+participant Member3Security as Sec
+
+Student -> UI : press "Recommended for me"
+UI -> Svc : recommend(store, current, today, 5)
+Svc -> Sec : isApplicant(current)
+Sec --> Svc : true
+loop each opportunity in store
+  Svc -> Store : application(email, id)
+  note right of Svc : skip if closed, expired or already applied
+  Svc -> Svc : evaluate(applicant, opportunity)
+end
+Svc -> Svc : sort by skillScore, fieldMatches, deadline
+Svc --> UI : List<Match>
+UI --> Student : dialog with ranked matches
+@enduml

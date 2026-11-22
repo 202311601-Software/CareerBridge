@@ -1,0 +1,29 @@
+digraph G {
+  rankdir=TB; splines=true; nodesep=0.5; ranksep=0.8;
+  node [shape=record, fontname="Helvetica", fontsize=10, style=filled, fillcolor="#F5F8FC", color="#1C4170"];
+  edge [fontname="Helvetica", fontsize=9, color="#1C4170"];
+
+  App [label="{CareerBridgeApp|- store : Store\l- current : Account\l|+ main(args)\l- register() / login() / logout()\l- applicantView() / companyView()\l- post() / reviewApplications()\l}", fillcolor="#E3ECF7"];
+  Store [label="{Store «Serializable»|~ accounts : List\<Account\>\l~ opportunities : List\<Opportunity\>\l~ applications : List\<Application\>\l~ nextId : int\l|+ load() : Store (static)\l+ save()\l+ account(email) : Account\l+ opportunity(id) : Opportunity\l+ application(email, id) : Application\l+ search(kw, loc, field, type) : List\l+ submitApplication(a, o) : Application\l+ updateApplicationStatus(c, app, status)\l}"];
+  Account [label="{Account «Serializable»|~ name, email, role : String\l~ major, skills : String\l~ passwordHash : String\l}"];
+  Opportunity [label="{Opportunity «Serializable»|~ id : int\l~ companyEmail, title, type : String\l~ location, field, skills : String\l~ deadline, description : String\l~ open : boolean\l}"];
+  Application [label="{Application «Serializable»|~ applicantEmail : String\l~ opportunityId : int\l~ status : String\l}"];
+  Passwords [label="{Passwords|+ hash(password) : String\l+ verify(password, stored) : boolean\l}"];
+  Sec [label="{Member3Security «utility»|+ validEmail(email) : boolean\l+ validRegistration(n, e, p) : boolean\l+ validOpportunity(...) : boolean\l+ isApplicant(a) / isCompany(a)\l+ ownsOpportunity(c, o) : boolean\l+ closeOpportunity(store, c, o)\l}", fillcolor="#FFF6E0"];
+  Match [label="{Member4MatchService «utility»|+ parseSkills(csv) : Set\<String\>\l+ evaluate(applicant, o) : Match\l+ recommend(store, applicant, today, limit) : List\<Match\>\l}", fillcolor="#E4F4E8"];
+  M [label="{Match «immutable»|+ opportunity : Opportunity\l+ skillScore : int\l+ fieldMatches : boolean\l+ matchedSkills, missingSkills : List\l}", fillcolor="#E4F4E8"];
+
+  App -> Store [label="uses 1", arrowhead=vee];
+  App -> Passwords [style=dashed, arrowhead=vee];
+  App -> Sec [style=dashed, arrowhead=vee];
+  App -> Match [style=dashed, arrowhead=vee];
+  Store -> Account [arrowtail=diamond, dir=back, headlabel="0..*", labelangle=30, labeldistance=1.5];
+  Store -> Opportunity [arrowtail=diamond, dir=back, headlabel="0..*", labelangle=30, labeldistance=1.5];
+  Store -> Application [arrowtail=diamond, dir=back, headlabel="0..*", labelangle=30, labeldistance=1.5];
+  Application -> Opportunity [style=dashed, arrowhead=vee, label="by id"];
+  Application -> Account [style=dashed, arrowhead=vee, label="by email"];
+  Opportunity -> Account [style=dashed, arrowhead=vee, label="posted by (email)"];
+  Match -> M [arrowhead=vee, label="creates"];
+  Match -> Store [style=dashed, arrowhead=vee, label="reads"];
+  Sec -> Store [style=dashed, arrowhead=vee];
+}

@@ -1,0 +1,113 @@
+@startuml CareerBridge_Class_Diagram
+title CareerBridge - Class Diagram (Design Document Part B, Fig. 2)
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+
+class CareerBridgeApp {
+  -store : Store
+  -current : Account
+  +main(args : String[]) {static}
+  -register()
+  -login()
+  -logout()
+  -applicantView()
+  -companyView()
+  -post()
+  -reviewApplications()
+  -recommended()
+}
+
+class Store <<Serializable>> {
+  accounts : List<Account>
+  opportunities : List<Opportunity>
+  applications : List<Application>
+  nextId : int
+  +load() : Store {static}
+  +save()
+  +account(email : String) : Account
+  +opportunity(id : int) : Opportunity
+  +application(email : String, id : int) : Application
+  +companyName(email : String) : String
+  +search(keyword, location, field, type : String) : List<Opportunity>
+  +submitApplication(applicant : Account, o : Opportunity) : Application
+  +updateApplicationStatus(company : Account, app : Application, status : String)
+}
+
+class Account <<Serializable>> {
+  name : String
+  email : String
+  role : String
+  major : String
+  skills : String
+  passwordHash : String
+}
+
+class Opportunity <<Serializable>> {
+  id : int
+  companyEmail : String
+  title : String
+  type : String
+  location : String
+  field : String
+  skills : String
+  deadline : String
+  description : String
+  open : boolean
+}
+
+class Application <<Serializable>> {
+  applicantEmail : String
+  opportunityId : int
+  status : String
+}
+
+class Passwords {
+  +hash(password : String) : String {static}
+  +verify(password : String, stored : String) : boolean {static}
+}
+
+class Member3Security <<utility>> {
+  +validEmail(email : String) : boolean {static}
+  +validRegistration(name, email, password : String) : boolean {static}
+  +validOpportunity(title, location, field, description, deadline : String) : boolean {static}
+  +isApplicant(a : Account) : boolean {static}
+  +isCompany(a : Account) : boolean {static}
+  +ownsOpportunity(company : Account, o : Opportunity) : boolean {static}
+  +closeOpportunity(store : Store, company : Account, o : Opportunity) {static}
+}
+
+class Member4MatchService <<utility>> {
+  +parseSkills(csv : String) : Set<String> {static}
+  +evaluate(applicant : Account, o : Opportunity) : Match {static}
+  +recommend(store : Store, applicant : Account, today : LocalDate, limit : int) : List<Match> {static}
+}
+
+class Match <<immutable>> {
+  +opportunity : Opportunity
+  +skillScore : int
+  +fieldMatches : boolean
+  +matchedSkills : List<String>
+  +missingSkills : List<String>
+}
+
+CareerBridgeApp --> "1" Store : uses
+CareerBridgeApp ..> Passwords
+CareerBridgeApp ..> Member3Security
+CareerBridgeApp ..> Member4MatchService
+
+Store "1" *-- "0..*" Account
+Store "1" *-- "0..*" Opportunity
+Store "1" *-- "0..*" Application
+Store ..> Member3Security : role / ownership checks
+
+Application ..> Opportunity : by id
+Application ..> Account : by email
+Opportunity ..> Account : posted by (email)
+
+Member3Security ..> Store
+Member4MatchService ..> Store : reads
+Member4MatchService ..> Member3Security
+Member4MatchService +-- Match
+Member4MatchService ..> Match : creates
+Match --> Opportunity
+@enduml

@@ -1,0 +1,15 @@
+digraph P {
+  rankdir=TB; nodesep=0.7; ranksep=0.9;
+  node [shape=tab, fontname="Helvetica", fontsize=11, style=filled, fillcolor="#F5F8FC", color="#1C4170"];
+  edge [color="#1C4170", style=dashed, arrowhead=vee, fontname="Helvetica", fontsize=9];
+  ui [label="ui\n(CareerBridgeApp)", fillcolor="#E3ECF7"];
+  services [label="services\n(Member4MatchService)", fillcolor="#E4F4E8"];
+  security [label="security\n(Member3Security, Passwords)", fillcolor="#FFF6E0"];
+  data [label="data\n(Store)"];
+  model [label="model\n(Account, Opportunity, Application)"];
+  ui -> services; ui -> security; ui -> data; ui -> model;
+  services -> data; services -> security; services -> model;
+  security -> data [label="closeOpportunity(Store,...)"];
+  data -> security [label="role / ownership checks"];
+  security -> model; data -> model;
+}
